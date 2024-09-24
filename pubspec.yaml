@@ -32,13 +32,13 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  desktop_drop: ^0.4.0  # Use the latest version
+  desktop_drop: ^0.4.0
   file_selector: ^0.9.5
-  mime: ^1.0.4  # Use the latest version available
-  image: ^4.0.17  # Use the latest version available
-  intl: ^0.18.0  # Use the latest stable version
-  path: ^1.8.0  # Use the latest version available
-  file_picker: ^5.3.1  # Use the latest version
+  mime: ^1.0.4
+  image: ^4.0.17
+  intl: ^0.18.0
+  path: ^1.8.0
+  file_picker: ^5.3.1
 
 dev_dependencies:
   flutter_test:
@@ -92,3 +92,17 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: HeptaSlab
+      fonts:
+        - asset: fonts/HeptaSlab-Bold.ttf
+          weight: 500
+        - asset: fonts/HeptaSlab-Regular.ttf
+        - asset: fonts/HeptaSlab-Light.ttf
+          weight: 100
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono-Regular.ttf
+        - asset: fonts/RobotoMono-Bold.ttf
+          weight: 700
