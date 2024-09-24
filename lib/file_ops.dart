@@ -22,7 +22,25 @@ String getTimeAgo(DateTime date) {
   return 'just now';
 }
 
-Future<Map<String, dynamic>> demoFileOperations({String? filePath, XFile? xFile}) async {
+/// Returns a map with file information:
+/// 
+///   [xFile] - the XFile object
+///   [filePath] - the full file path
+///   [fileName] - the file name portion of the path
+///   [fileExt] - the file extension 
+///   [fileFolder] - the parent file folder portion of the path
+///   [mimetype] - the mime type string
+///   [fileLength] - the file length in bytes
+///   [lastModified] - the last modified date object
+///   [lastModifiedFormatted] - the last modified date formatted
+///   [lastModifiedAgo] - the last modified date in "x ago" format
+///   [textContent] - the text content of the file if it is a text file
+///   [image] - the decoded image data
+///   [imageDimensions] - the image dimensions, width and height
+///   [imageError] - the error message if there is an error decoding the image
+/// 
+/// Returns a map with the file information
+Future<Map<String, dynamic>> fileInfo({String? filePath, XFile? xFile}) async {
   XFile fileToProcess;
   Map<String, dynamic> result = {};
 
@@ -35,28 +53,35 @@ Future<Map<String, dynamic>> demoFileOperations({String? filePath, XFile? xFile}
     throw ArgumentError('Either filePath or xFile must be provided');
   }
 
-  result['path'] = fileToProcess.path;
-  result['name'] = path.basename(fileToProcess.path);
+  result['xFile'] = fileToProcess;
+  result['filePath'] = fileToProcess.path;
+  result['fileName'] = path.basename(fileToProcess.path);
+  result['fileExt'] = path.extension(fileToProcess.path);
+  result['fileFolder'] = path.dirname(fileToProcess.path);
 
   final File file = File(fileToProcess.path);
   final String? mimeType = lookupMimeType(file.path);
   result['mimetype'] = mimeType ?? 'Unknown';
 
   final int fileLength = await fileToProcess.length();
-  result['length'] = '$fileLength bytes';
+  result['fileLength'] = '$fileLength bytes';
 
   final DateTime lastModified = await file.lastModified();
-  final String formattedDate = formatDateTime(lastModified, withAgo: true);
-  result['lastModified'] = formattedDate;
+  result['lastModified'] = lastModified;
+  final String formattedDate = formatDateTime(lastModified, withAgo: false);
+  result['lastModifiedFormatted'] = formattedDate;
+  result['lastModifiedAgo'] = getTimeAgo(lastModified);
 
   if (mimeType?.startsWith('text/') == true) {
     final String fileContent = await fileToProcess.readAsString();
-    result['content'] = fileContent;
+    result['textContent'] = fileContent;
   } else if (mimeType?.startsWith('image/') == true) {
     try {
       final bytes = await file.readAsBytes();
       final image = img.decodeImage(bytes);
-      result['imageDimensions'] = '${image?.width} x ${image?.height} pixels';
+      result['image'] = image;
+      result['imageDimensions'] =[image?.width, image?.height];
+      result['imageDimensionsFormatted'] = '${image?.width} x ${image?.height}';
     } catch (e) {
       result['imageError'] = 'Error decoding image: $e';
     }
