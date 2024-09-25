@@ -5,6 +5,8 @@ import 'package:path/path.dart' as path;
 import 'package:cross_file/cross_file.dart';
 import 'package:intl/intl.dart'; // Added for date formatting
 
+/// Returns a formatted date string for a given date, with the
+///  option to include "ago" format
 String formatDateTime(DateTime date, {bool withAgo = false}) {
   final formatter = DateFormat('EEE MMM d, yyyy h:mm a');
   final formattedDate = formatter.format(date);
@@ -14,6 +16,7 @@ String formatDateTime(DateTime date, {bool withAgo = false}) {
   return '$formattedDate ($timeAgo)';
 }
 
+/// Returns a string with the time "ago format" for a given date
 String getTimeAgo(DateTime date) {
   final difference = DateTime.now().difference(date);
   if (difference.inDays > 0) return '${difference.inDays} days ago';
@@ -22,24 +25,23 @@ String getTimeAgo(DateTime date) {
   return 'just now';
 }
 
-/// Returns a map with file information:
+/// Returns a future map with file information:
 /// 
-///   [xFile] - the XFile object
-///   [filePath] - the full file path
-///   [fileName] - the file name portion of the path
-///   [fileExt] - the file extension 
-///   [fileFolder] - the parent file folder portion of the path
-///   [mimetype] - the mime type string
-///   [fileLength] - the file length in bytes
-///   [lastModified] - the last modified date object
-///   [lastModifiedFormatted] - the last modified date formatted
-///   [lastModifiedAgo] - the last modified date in "x ago" format
-///   [textContent] - the text content of the file if it is a text file
-///   [image] - the decoded image data
-///   [imageDimensions] - the image dimensions, width and height
-///   [imageError] - the error message if there is an error decoding the image
+///  * [xFile]: the XFile object
+///  * [filePath]: the full file path
+///  * [fileName]: the file name portion of the path
+///  * [fileExt]: the file extension 
+///  * [fileFolder]: the parent file folder portion of the path
+///  * [mimetype]: the mime type string
+///  * [fileLength]: the file length in bytes
+///  * [lastModified]: the last modified date object
+///  * [lastModifiedFormatted]: the last modified date formatted
+///  * [lastModifiedAgo]: the last modified date in "x ago" format
+///  * [textContent]: the text content of the file if it is a text file
+///  * [image]: the decoded image data
+///  * [imageDimensions]: the image dimensions, width and height
+///  * [imageError]: the error message if there is an error decoding the image
 /// 
-/// Returns a map with the file information
 Future<Map<String, dynamic>> fileInfo({String? filePath, XFile? xFile}) async {
   XFile fileToProcess;
   Map<String, dynamic> result = {};

@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:flutter/widgets.dart';
 import 'package:file_picker/file_picker.dart';
-// import 'dart:typed_data';  // Removed unused import
+import 'file_ops.dart';
+
 
 void main() async {
-  // CLI Testing:
-  // WidgetsFlutterBinding.ensureInitialized();
-  // demoFileOperations(filePath: 'assets/hello.txt');
-  // demoFileOperations(xFile: XFile('assets/image_house.jpg'));
-  // demoFileOperations(filePath: 'assets/folder-1484.png');
   runApp(const MyApp());
 }
 
@@ -35,19 +30,40 @@ class AppPage extends StatefulWidget {
   const AppPage({Key? key}) : super(key: key);
 
   @override
-  _AppPageState createState() => _AppPageState();
+  AppPageState createState() => AppPageState();
 }
 
-class _AppPageState extends State<AppPage> {
-  List<String> ingestFilePaths = [];
+class AppPageState extends State<AppPage> {
+
+  List<XFile> ingestedFiles = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Ingested Files: ${ingestedFiles.length}'),
+      ),
       body: Column(
         children: [
-          Text('files:', style: TextStyle(fontFamily: 'HeptaSlab', fontSize: 30, letterSpacing: -1.0)),
-          ...ingestFilePaths.map((path) => createFileCard(path)),
+          Expanded(
+            child: ingestedFiles.isEmpty
+                ? Center(child: Text('No files ingested yet'))
+                : ListView.builder(
+                    itemCount: ingestedFiles.length,
+                    itemBuilder: (context, index) {
+                      return FutureBuilder<Widget>(
+                        future: Future.value(_createFileCard(ingestedFiles[index])),
+                        builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            return snapshot.data ?? Container();
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      );
+                    },
+                  ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -58,11 +74,43 @@ class _AppPageState extends State<AppPage> {
     );
   }
 
-  Widget createFileCard(String path) {
-    // Implement your file card widget here
-    return ListTile(
-      title: Text(path, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
-      // Add more details or customize as needed
+  Icon _getIconForMimeType(String mimeType) {
+    if (mimeType.startsWith('text/')) {
+      return const Icon(Icons.text_snippet);
+    } else if (mimeType.startsWith('image/')) {
+      return const Icon(Icons.image);
+    } else {
+      return const Icon(Icons.file_present);
+    }
+  }
+
+  Widget _createFileCard(XFile xfile) {
+    if (xfile.path.isEmpty) {
+      return const Text('path empty');
+    }
+    return FutureBuilder<Map<String, dynamic>>(
+      future: fileInfo(xFile: xfile),
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          final metadata = snapshot.data!;
+          final Icon icon = _getIconForMimeType(metadata['mimetype']);
+
+          return ListTile(
+            leading: icon,
+            title: Text(xfile.name,
+                style: const TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+            subtitle: Text(metadata['fileFolder']),
+            trailing: Text(metadata['lastModifiedAgo']),
+          );
+        } else {
+          return const Text('No data');
+        }
+      },
     );
   }
 
@@ -71,13 +119,23 @@ class _AppPageState extends State<AppPage> {
 
     if (result != null) {
       XFile xfile = XFile(result.files.single.path!);
-      // await demoFileOperations(xFile: xfile);
-      ingestFilePaths.add(xfile.path);
-      setState(() {});
+      setState(() {
+        ingestedFiles.add(xfile);
+        print("File added. Current list size: ${ingestedFiles.length}");
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ingested ${xfile.name}. Total files: ${ingestedFiles.length}'),
+          backgroundColor: Colors.grey[700],
+        ),
+      );
     } else {
       // User canceled the picker
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No file selected')),
+        SnackBar(
+          content: Text('No file selected', style: TextStyle(color: Colors.black),), 
+          backgroundColor: Colors.amber,
+        ),
       );
     }
   }
