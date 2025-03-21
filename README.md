@@ -1,16 +1,41 @@
 # dropfile
 
-A new Flutter project.
+Dropfile is a demo app for the desktop.
 
-## Getting Started
+## About
 
-This project is a starting point for a Flutter application.
+Dropfile is a tool for showing drag'n'drop behavior on a Windows Desktop.
 
-A few resources to get you started if this is your first Flutter project:
+The currently dropped files (aka ingested files) 
+are displayed in a list with a bit of metadata.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+A "+" button is provided to add files to the list using a file picker.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The files are stored in SQLite and are persisted between app restarts.
+
+[![image](assets/screenshot.png)](assets/screenshot.png)
+
+## Authors
+
+- [Doug MacMillan](https://github.com/cgdougm)
+- [WindsurfAI](https://codeium.com/windsurf)
+- [Cursor](https://codeium.com/cursor)
+
+## Acknowledgments
+
+- [Flutter](https://flutter.dev/)
+- [Desktop Drop](https://pub.dev/packages/desktop_drop)
+- [File Selector](https://pub.dev/packages/file_selector)
+- [MIME](https://pub.dev/packages/mime)
+- [Image](https://pub.dev/packages/image)
+- [Intl](https://pub.dev/packages/intl)
+- [Path](https://pub.dev/packages/path)
+- [File Picker](https://pub.dev/packages/file_picker)
+- [Cross File](https://pub.dev/packages/cross_file)
+- [Crypto](https://pub.dev/packages/crypto)
+- [SQFLite Common FFI](https://pub.dev/packages/sqflite_common_ffi)
+- [Provider](https://pub.dev/packages/provider)
+
+## License
+
+MIT License

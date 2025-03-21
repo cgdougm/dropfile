@@ -4,6 +4,7 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
 import 'package:cross_file/cross_file.dart';
 import 'package:intl/intl.dart'; // Added for date formatting
+import 'package:crypto/crypto.dart'; // Added for file hashing
 
 /// Returns a formatted date string for a given date, with the
 ///  option to include "ago" format
@@ -25,6 +26,13 @@ String getTimeAgo(DateTime date) {
   return 'just now';
 }
 
+String formatFileSize(int fileLength) {
+  if (fileLength < 1024) return '$fileLength bytes';
+  if (fileLength < 1024 * 1024) return '${(fileLength / 1024).round()}K';
+  if (fileLength < 1024 * 1024 * 1024) return '${(fileLength / (1024 * 1024)).round()}M';
+  return '${(fileLength / (1024 * 1024 * 1024)).round()}G';
+}
+
 /// Returns a future map with file information:
 /// 
 ///  * [xFile]: the XFile object
@@ -41,7 +49,9 @@ String getTimeAgo(DateTime date) {
 ///  * [image]: the decoded image data
 ///  * [imageDimensions]: the image dimensions, width and height
 ///  * [imageError]: the error message if there is an error decoding the image
+///  * [fileHash]: the SHA256 hash of the file
 /// 
+
 Future<Map<String, dynamic>> fileInfo({String? filePath, XFile? xFile}) async {
   XFile fileToProcess;
   Map<String, dynamic> result = {};
@@ -66,7 +76,8 @@ Future<Map<String, dynamic>> fileInfo({String? filePath, XFile? xFile}) async {
   result['mimetype'] = mimeType ?? 'Unknown';
 
   final int fileLength = await fileToProcess.length();
-  result['fileLength'] = '$fileLength bytes';
+  result['fileLength'] = fileLength;
+  result['fileLengthFormatted'] = formatFileSize(fileLength);
 
   final DateTime lastModified = await file.lastModified();
   result['lastModified'] = lastModified;
@@ -88,6 +99,10 @@ Future<Map<String, dynamic>> fileInfo({String? filePath, XFile? xFile}) async {
       result['imageError'] = 'Error decoding image: $e';
     }
   }
+
+  final bytes = await file.readAsBytes();
+  final digest = sha256.convert(bytes);
+  result['fileHash'] = digest.toString();
 
   return result;
 }
